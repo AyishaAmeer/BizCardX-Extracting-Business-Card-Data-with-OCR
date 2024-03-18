@@ -12,8 +12,8 @@ import re
 st.set_page_config(page_title="BizCardX: Extracting Business Card Data with OCR",
                    layout="wide",
                    initial_sidebar_state="expanded",
-                   menu_items={'About': """# This OCR app is created by *Vijai Gowtham*!"""})
-st.markdown("<h1 style='text-align: center; color: white;'>BizCardX: Extracting Business Card Data with OCR</h1>", unsafe_allow_html=True)
+                   menu_items={'About': """# This OCR app is created by *Ayisha*!"""})
+st.markdown("<h1 style='text-align: center; color: Blue;'>BizCardX: Extracting Business Card Data with OCR</h1>", unsafe_allow_html=True)
 
 #=========hide the streamlit main and footer
 hide_default_format = """
@@ -26,7 +26,7 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 
 def app_background():
     st.markdown(f""" <style>.stApp {{
-                            background: url("https://cdn.wallpapersafari.com/7/90/BFUQb1.jpg");
+                            background: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSay4zIjESDJ7XGu3mJZdePa-pG1mqbkJMCWg&usqp=CAU");
                             background-size: cover}}
                          </style>""", unsafe_allow_html=True)
 
@@ -39,7 +39,7 @@ selected = option_menu(None, ["Home","Upload & Extract","Modify"],
                        styles={"nav-link": {"font-size": "25px", "text-align": "centre", "margin": "0px", "--hover-color": "#AB63FA", "transition": "color 0.3s ease, background-color 0.3s ease"},
                                "icon": {"font-size": "25px"},
                                "container" : {"max-width": "6000px", "padding": "10px", "border-radius": "5px"},
-                               "nav-link-selected": {"background-color": "#AB63FA", "color": "white"}})
+                               "nav-link-selected": {"background-color": "#AB63FA", "color": "black"}})
 
 # INITIALIZING THE EasyOCR READER
 reader = easyocr.Reader(['en'])
@@ -55,7 +55,7 @@ cursor=connection.cursor()
 
 create_query=''' CREATE TABLE IF NOT EXISTS card_data
                  (
-                  comapany_name varchar(50),
+                  company_name varchar(50),
                   card_holder varchar(50),
                   designation varchar(50),
                   mobile_number varchar(50),
