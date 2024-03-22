@@ -9,31 +9,34 @@ import os
 import matplotlib.pyplot as plt
 import re
 
+
 st.set_page_config(page_title="BizCardX: Extracting Business Card Data with OCR",
                    layout="wide",
+                   page_icon='🗃️',
                    initial_sidebar_state="expanded",
                    menu_items={'About': """# This OCR app is created by *Ayisha*!"""})
 st.markdown("<h1 style='text-align: center; color: Blue;'>BizCardX: Extracting Business Card Data with OCR</h1>", unsafe_allow_html=True)
 
-#=========hide the streamlit main and footer
+#hide the streamlit main and footer
 hide_default_format = """
-       <style>
-       #MainMenu {visibility: hidden; }
-       footer {visibility: hidden;}
-       </style>
-       """
+        <style>
+        #MainMenu {visibility: hidden; }
+        footer {visibility: hidden;}
+        </style>
+        """
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
 def app_background():
     st.markdown(f""" <style>.stApp {{
-                            background: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSay4zIjESDJ7XGu3mJZdePa-pG1mqbkJMCWg&usqp=CAU");
+                            background: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDMRBHN44YW9gdwovyoDsLnXUbxUdb1BBaRg&usqp=CAU");
                             background-size: cover}}
                          </style>""", unsafe_allow_html=True)
 
 app_background()
 
-selected = option_menu(None, ["Home","Upload & Extract","Modify"],
-                       icons=["home","cloud-upload-alt","edit"],
+selected = option_menu("Main Icons", ["Home","Upload & Extract","Modify"],
+                       icons=["house","upload","gear"],
+
                        default_index=0,
                        orientation="horizontal",
                        styles={"nav-link": {"font-size": "25px", "text-align": "centre", "margin": "0px", "--hover-color": "#AB63FA", "transition": "color 0.3s ease, background-color 0.3s ease"},
@@ -71,16 +74,19 @@ cursor.execute(create_query)
 #connection.commit()
 
 if selected == "Home":
-        st.markdown("## :green[**Technologies Used :**] Python,easy OCR, Streamlit, SQL, Pandas")
-        st.markdown("## :green[**Overview :**] In this streamlit web app you can upload an image of a business card and extract relevant information from it using easyOCR. You can view, modify or delete the extracted data in this app. This app would also allow users to save the extracted information into a database along with the uploaded business card image. The database would be able to store multiple entries, each with its own business card image and extracted information.")
-
+        st.markdown("## :green[**Technologies Used :**] :rainbow[Python,easy OCR, Streamlit, SQL, Pandas]")
+        st.markdown("## :green[**Overview of this project:**]") 
+        st.markdown("## :orange[**Design the user interface:**] :violet[Create a simple and intuitive user interface using Streamlit that guides users through the process of uploading the businesscard image and extracting its information using widgets like fileuploader, buttons, and text boxes to make the interface more interactive.]")
+        st.markdown("## :orange[**Implemention of image processing and OCR:**] :violet[Use easyOCR to extract the relevant information from the uploaded business card image. Here using image processing techniques like resizing, cropping, and thresholding to enhance the image quality.]")
+        st.markdown("## :orange[**Display of extracted information:**] :violet[Once the information has been extracted, displaying in clean and organized manner in the Streamlit GUI using widgets like tables, text boxes, and labels to present the information.]")
+        st.markdown("## :orange[**Implemention of database integration:**] :violet[Use a database management system likeSQLite or MySQL to store the extracted information along with the uploadedbusiness card image. You can use SQL queries to create tables, insert data,and retrieve data from the database, Update the data and Allow the user todelete the data through the streamlit UI]")
 # Create the 'uploaded_cards' directory if it does not exist
 if not os.path.exists("uploaded_cards"):
     os.makedirs("uploaded_cards")
 
 # UPLOAD AND EXTRACT MENU
 if selected == "Upload & Extract":
-    st.markdown("### Upload a Business Card")
+    st.subheader(":orange[Upload a Business Card]")
     uploaded_card = st.file_uploader("upload here", label_visibility="collapsed", type=["png", "jpeg", "jpg"])
 
     if uploaded_card is not None:
@@ -157,14 +163,20 @@ if selected == "Upload & Extract":
                 elif '@' in i:
                     data["email"].append(i)
                 # To get MOBILE NUMBER
-                elif "-" in i:
+                pattern=r'\d{3}-\d{3}-\d{4}'
+                if re.findall(pattern, i):
                     data["mobile_number"].append(i)
-                    if len(data["mobile_number"]) == 2:
+                elif re.findall('-',i):
+                    data['mobile_number'].append(i)
+                    
                         
-                        data["mobile_number"] = " & ".join(data["mobile_number"])
                 # To get COMPANY NAME
                 elif ind == len(res) - 1:
                     data["company_name"].append(i)
+                    if data["company_name"]==['St ,']:
+                        data["company_name"].pop(0)
+                        data['company_name'].append(res[-4]+res[-2])
+
                 # To get Card Holder Name
                 elif ind == 0:
                     data["card_holder"].append(i)
@@ -181,13 +193,14 @@ if selected == "Upload & Extract":
                 match1 = re.findall('.+St , ([a-zA-Z]+).+',i)
                 match2 = re.findall('.+St,,([a-zA-Z]+).+',i)
                 match3 = re.findall('^[E].*',i)
+                
                 if match1:
                     data["city"].append(match1[0])
                 elif match2:
                     data["city"].append(match2[0])
                 elif match3:
                     data["city"].append(match3[0])
-
+                
                 #To get state name
                 state_match = re.findall('[a-zA-Z]{9} +[0-9]', i)
                 if state_match:
@@ -208,6 +221,14 @@ if selected == "Upload & Extract":
         def create_df(data):
             df = pd.DataFrame.from_dict(data, orient='index')
             return df.T
+        
+        if len(data["mobile_number"]) == 2:
+            data['mobile_number']=[' & '.join(data['mobile_number'])]
+        match4 = []
+        if len(data['city'])==0:
+            data["city"].append(res[2][-2][13:21])
+        with col1:
+            st.write(data)
         df = create_df(data)
         st.success("### Data Extracted ")
         st.write(df)
@@ -232,16 +253,18 @@ if selected == "Upload & Extract":
             st.success("#### Uploaded to database successfully!")
 
 if selected == "Modify":
-    col1,col2,col3 = st.columns([3,3,2])
-    col2.markdown("## Alter or Delete the data here")
+    col1,col2,col3 = st.columns([2,3,1])
+    col2.title(":blue[Delete Or Update The Data Here]")
     column1,column2 = st.columns(2,gap='large')
     try :
         with column1:
             cursor.execute("Select card_holder FROM card_data")
             result = cursor.fetchall()
+            #st.write(result)
             business_cards = {}
             for row in result:
                 business_cards[row[0]] = row[0]
+        st.subheader(":orange[Modify Card Details Here:]")    
         selected_card = st.selectbox("Select a card holder name to update", list(business_cards.keys()))
         st.markdown("#### Update or modify any data below")
         cursor.execute("select * from card_data where card_holder=%s",(selected_card,))
@@ -270,15 +293,19 @@ if selected == "Modify":
             cursor.execute(Update_query,values)
             connection.commit()
             #cursor.fetchall()
-            st.success("Information updated in database successfully.")
+            
+            if st.success("Information updated in database successfully."):
+                st.balloons()
 
-        with column2:
+        with column1:
             cursor.execute("SELECT card_holder FROM card_data")
             result = cursor.fetchall()
             business_cards = {}
             for row in result:
                 business_cards[row[0]] = row[0]
-            selected_card = st.selectbox("Select a card holder name to Delete", list(business_cards.keys()))
+            st.subheader(":orange[Delete Card here:]")
+            selected_card = st.selectbox("Select a card holder name to Delete", business_cards.keys())
+            
             st.write(f"### You have selected :green[**{selected_card}'s**] card to delete")
             st.write("#### Proceed to delete this card?")
 
@@ -286,6 +313,8 @@ if selected == "Modify":
                 cursor.execute(f"DELETE FROM card_data WHERE card_holder='{selected_card}'")
                 connection.commit()
                 st.success("Business card information deleted from database.")
+        with column2:
+            st.image('https://www.guidingtech.com/wp-content/uploads/remove-remembered-credit-cards-from-iPhone_4d470f76dc99e18ad75087b1b8410ea9.png')
     except:
         st.warning("There is no data available in the database")
 
